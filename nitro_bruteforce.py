@@ -114,7 +114,7 @@ for thread in threads:
 
 while True:
     try:
-        print("\n" * 75) # hacky as fuck but idc (clear screen)
+        os.system('cls' if os.name == 'nt' else 'clear')
         info = ""
         info += "Threads active: " + os.environ["_THREADS"]
         info += "\nAttempts: " + str(codes_tried)
