@@ -10,7 +10,7 @@ from requests.exceptions import ProxyError, SSLError, ConnectionError, InvalidPr
 cpu_cores = 8
 os.environ["_THREADS"] = "0"
 threads = []
-proxies = [line.rstrip('\n') for line in open("proxies/proxies.txt")]
+proxies = []
 invalid_proxies = 0
 codes_tried = 0
 codes_found = 0
@@ -19,6 +19,19 @@ codes_found = 0
 def generateCode():
     return ''.join(random.choice(string.ascii_letters + string.digits) for i in range(16))
 
+
+def initProxyList():
+    global proxies
+    proxies = [line.rstrip('\n') for line in open('proxies/proxies.txt')]
+    # remove duplicates
+    proxies = list(set(proxies))
+    f = open('proxies/proxies.txt', 'w+')
+    to_write = ''
+    for proxy in proxies:
+        to_write += proxy + '\n'
+    f.write(to_write)
+    f.close()
+ 
 
 def getProxy():
     global proxies
@@ -102,6 +115,8 @@ class bruteforceThread(threading.Thread):
             else:
                 pass
 
+
+initProxyList()
 
 for x in range(cpu_cores):
     threads.append(bruteforceThread())
