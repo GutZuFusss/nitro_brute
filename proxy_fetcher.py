@@ -8,9 +8,9 @@ import sys
 import time
 
 num_threads = 8
-initial_proxies = 450
+initial_proxies = 1000
 
-timeout = 2
+timeout = 3
 good_list = []
 
 
@@ -46,7 +46,7 @@ def get_proxies():
         for line in io.StringIO(fetched):
             proxy_list.append(line.strip())
         print('[All         ] ' + str(x*5) + ' / ' + str(initial_proxies))
-        time.sleep(0.5)
+        time.sleep(0.05) # don't stress the api too much
 
     # check for duplicates & return
     proxy_list_nd = list(set(proxy_list))
