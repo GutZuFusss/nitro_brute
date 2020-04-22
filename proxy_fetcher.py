@@ -8,13 +8,13 @@ import sys
 import time
 
 num_threads = 8
-initial_proxies = 1000
+initial_proxies = 500
 
-timeout = 3
+timeout = 6
 good_list = []
 
 
-def verify_list(proxy_list, thread_number):
+'''def verify_list(proxy_list, thread_number):
     global good_list, timeout
     print('[Thread: ' + str(thread_number) + '] Now checking fetched proxies\n')
     working_list = []
@@ -22,7 +22,7 @@ def verify_list(proxy_list, thread_number):
         try:
 
             proxy_dict = {
-                "https": "https://"+prox+"/",
+                "http": "http://"+prox+"/",
             }
 
             r = requests.get("http://ipinfo.io/json", proxies=proxy_dict, timeout=timeout)
@@ -35,14 +35,14 @@ def verify_list(proxy_list, thread_number):
             print('[Thread: ' + str(thread_number) + '] Proxy failed: ' + prox + '\n')
             print('[Thread: ' + str(thread_number) + '] Proxy failed message: ' + e + '\n')
     print('[Thread: ' + str(thread_number) +  '] Working Proxies: ' + str(len(working_list)) + '\n')
-    good_list += working_list
+    good_list += working_list'''
 
 
-def get_proxies():
+'''def get_proxies():
     proxy_list = []
     print('[All         ] Started fetching initial proxies.\n')
     for x in range(0, int(initial_proxies/5)): # very good service, only 5 at a time without payment tho -> loop
-        fetched = requests.get("http://pubproxy.com/api/proxy?limit=5&format=txt&type=https&country=de,nl,fr,be,at,ch,lu,it,pl,cz,dk,es", timeout=timeout).text
+        fetched = requests.get("http://pubproxy.com/api/proxy?limit=5&format=txt&type=http&country=de,nl,fr,be,at,ch,lu,it,pl,cz,dk,es", timeout=timeout).text
         for line in io.StringIO(fetched):
             proxy_list.append(line.strip())
         print('[All         ] ' + str(x*5) + ' / ' + str(initial_proxies))
@@ -51,23 +51,35 @@ def get_proxies():
     # check for duplicates & return
     proxy_list_nd = list(set(proxy_list))
     print('[All         ] Dublicates removed: ' + str(len(proxy_list)-len(proxy_list_nd)) + '\n')
+    return proxy_list_nd'''
+    
+def get_proxies(url): # using some daily updated git repos instead now
+    proxy_list = []
+    fetched = requests.get(url, timeout=timeout).text
+    for line in io.StringIO(fetched):
+        proxy_list.append(line.strip())
+
+    # check for duplicates & return
+    proxy_list_nd = list(set(proxy_list))
+    print('[All         ] Dublicates removed: ' + str(len(proxy_list)-len(proxy_list_nd)) + '\n')
     return proxy_list_nd
 
 
-def setup(number_threads):
+def init(number_threads):
     thread_amount = float(number_threads)
-    proxy_list = get_proxies()
-    amount = int(math.ceil(len(proxy_list)/thread_amount))
+    proxy_list = get_proxies("https://raw.githubusercontent.com/clarketm/proxy-list/master/proxy-list-raw.txt")
+    proxy_list += get_proxies("https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt")
+    '''amount = int(math.ceil(len(proxy_list)/thread_amount))
     proxy_lists = [proxy_list[x:x+amount] for x in range(0, len(proxy_list), amount)]
     if len(proxy_list) % thread_amount > 0.0:
-        proxy_lists[len(proxy_lists)-1].append(proxy_list[len(proxy_list)-1])
-    return proxy_lists
+        proxy_lists[len(proxy_lists)-1].append(proxy_list[len(proxy_list)-1])'''
+    return proxy_list
 
 
 def start(threads):
     start_time = time.time()
-    lists = setup(threads)
-    thread_list = []
+    lists = init(threads)
+    '''thread_list = []
     count = 0
     for l in lists:
         thread_list.append(Thread(target=verify_list, args=(l, count)))
@@ -75,7 +87,9 @@ def start(threads):
         count += 1
 
     for x in thread_list:
-        x.join()
+        x.join()'''
+        
+    good_list = lists
 
     f = open('proxies/fetched_proxies_' + str(start_time) + '.txt', 'w+')
     to_write = ''
