@@ -144,7 +144,7 @@ while True:
         info += "\nCodes Found: " + str(codes_found)
         info += "\nSuccessfull attempts: " + str(codes_tried - rate_limited_requests) + " (" + str(round((codes_tried - rate_limited_requests) / (time.time() - start_time), 3)) + " / s)"
         info += "\nTotal attempts: " + str(codes_tried) + " (" + str(round(codes_tried / (time.time() - start_time), 3)) + " / s)"
-        info += "\nProxies: " + str(len(proxies))
+        info += "\nActive proxies: " + str(len(proxies))
         info += "\nInvalid proxies: " + str(invalid_proxies)
         print(info)
         time.sleep(0.5)
