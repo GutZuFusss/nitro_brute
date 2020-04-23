@@ -7,12 +7,17 @@ import os, os.path
 import time
 from requests.exceptions import ProxyError, SSLError, ConnectionError, InvalidProxyURL
 
-num_threads = 512
-timeout = 15
-start_time = time.time()
+# tuning (TODO: prompt for these and/or allow starting params)
+num_threads = 16
+timeout = 5
+
+# system variables
 os.environ["_THREADS"] = "0"
 threads = []
 proxies = []
+
+# displaying stuff
+start_time = time.time()
 invalid_proxies = 0
 codes_tried = 0
 codes_found = 0
