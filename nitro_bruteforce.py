@@ -142,8 +142,8 @@ while True:
         info = ""
         info += "Threads active: " + os.environ["_THREADS"]
         info += "\nCodes Found: " + str(codes_found)
-        info += "\nAttempts: " + str(codes_tried) + " (" + str(round(codes_tried / (time.time() - start_time), 3)) + " / s)"
-        info += "\nRate limited: " + str(rate_limited_requests)
+        info += "\nSuccessfull attempts: " + str(codes_tried - rate_limited_requests) + " (" + str(round((codes_tried - rate_limited_requests) / (time.time() - start_time), 3)) + " / s)"
+        info += "\nTotal attempts: " + str(codes_tried) + " (" + str(round(codes_tried / (time.time() - start_time), 3)) + " / s)"
         info += "\nProxies: " + str(len(proxies))
         info += "\nInvalid proxies: " + str(invalid_proxies)
         print(info)
