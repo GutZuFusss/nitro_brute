@@ -141,11 +141,11 @@ while True:
         os.system('cls' if os.name == 'nt' else 'clear')
         info = ""
         info += "Threads active: " + os.environ["_THREADS"]
+        info += "\nCodes Found: " + str(codes_found)
         info += "\nAttempts: " + str(codes_tried) + " (" + str(round(codes_tried / (time.time() - start_time), 3)) + " / s)"
         info += "\nRate limited: " + str(rate_limited_requests)
         info += "\nProxies: " + str(len(proxies))
         info += "\nInvalid proxies: " + str(invalid_proxies)
-        info += "\nCodes Found: " + str(codes_found)
         print(info)
         time.sleep(0.5)
     except KeyboardInterrupt:
