@@ -21,6 +21,7 @@ start_time = time.time()
 invalid_proxies = 0
 codes_tried = 0
 codes_found = 0
+rate_limited_requests = 0
 
 
 def generateCode():
@@ -84,7 +85,7 @@ class bruteforceThread(threading.Thread):
         threading.Thread.__init__(self)
         self.tasks = []
     def run(self):
-        global invalid_proxies, codes_tried, codes_found
+        global invalid_proxies, codes_tried, codes_found, rate_limited_requests
         raw_proxy = ""
         while True:
             try:
@@ -106,6 +107,8 @@ class bruteforceThread(threading.Thread):
                     flagInvalidProxy(raw_proxy)
                 else:
                     codes_tried += 1
+                    if 'rate limited' in response.text:
+                        rate_limited_requests += 1
                     random.uniform(0.5, 3.5)
             except ProxyError:
                 pass
@@ -139,6 +142,7 @@ while True:
         info = ""
         info += "Threads active: " + os.environ["_THREADS"]
         info += "\nAttempts: " + str(codes_tried) + " (" + str(round(codes_tried / (time.time() - start_time), 3)) + " / s)"
+        info += "\nRate limited: " + str(rate_limited_requests)
         info += "\nProxies: " + str(len(proxies))
         info += "\nInvalid proxies: " + str(invalid_proxies)
         info += "\nCodes Found: " + str(codes_found)
