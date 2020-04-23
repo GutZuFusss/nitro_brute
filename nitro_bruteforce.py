@@ -7,7 +7,7 @@ import os, os.path
 import time
 from requests.exceptions import ProxyError, SSLError, ConnectionError, InvalidProxyURL
 
-cpu_cores = 512
+num_threads = 512
 timeout = 15
 start_time = time.time()
 os.environ["_THREADS"] = "0"
@@ -119,7 +119,7 @@ class bruteforceThread(threading.Thread):
 
 initProxyList()
 
-for x in range(cpu_cores):
+for x in range(num_threads):
     threads.append(bruteforceThread())
 
 for thread in threads:
